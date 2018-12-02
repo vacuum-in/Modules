@@ -4,7 +4,7 @@ function Mount-ISOImmage
 {
     param(
         [parameter(helpmessage="Enter Drive letter like C, D, E etc.")]
-        [string]$DriveLetter = "E")
+        [string]$DriveLetter = "C")
 
     $nnow = @()
     $previous = @()
@@ -28,15 +28,16 @@ function Install-SQLDBIngine
     param(
         [switch]$Accept,
 		[parameter(Mandatory = $true, ParameterSetName = "SQLEngine")]
-		
+        [ValidateSet("SQLEngine","Conn","Tea","Coffee")]
         [string]$Futures ,
         [parameter(Mandatory=$true)]
         [string]$INSTANCENAME = "MSSQLSERVER",
         [switch]$EnableSQLAuthentication = $false,
-        [ValidateScript({ ($EnableSQLAuthentication)})]
+        #[ValidateScript({ ($EnableSQLAuthentication)})]
         [parameter(Mandatory)]
         [string]$SAPassword,
-        [string]$AdminUserName = "NULL"
+        [string]$AdminUserName = "NULL",
+        [string]$DriveLetter = "C"
         )
 
     $AcceptSRT = ""
@@ -65,6 +66,34 @@ function Install-SQLDBIngine
     $MainString | Out-File C:\line.txt 
     Invoke-Expression $MainString
 }
+
+function Enable-SQLTCPIP 
+{
+    param(
+        [parameter(Mandatory=$true)]
+        [ValidateSet("MSSQLSERVER")]
+        [string]$INSTANCENAME,
+        [switch]$ChangePort = $false,
+        [string]$Port = "1433",
+        [switch]$RestartInstance = $false
+
+    )
+    Import-Module SQLPS
+$smo = ‘Microsoft.SqlServer.Management.Smo.’
+$wmi = new-object ($smo + ‘Wmi.ManagedComputer’)
+$uri = "ManagedComputer[@Name=" + "'" + $env:COMPUTERNAME + "'" + "]/ ServerInstance[@Name=" + "'" + $INSTANCENAME + "'" + "]/ServerProtocol[@Name='Tcp']"
+$Tcp = $wmi.GetSmoObject($uri)
+$Tcp.IsEnabled = $true
+$TCP.Alter()
+if ($ChangePort) {
+    $wmi.GetSmoObject($uri + "/IPAddress[@Name='IPAll']").IPAddressProperties[1].Value="$Port"
+    $TCP.Alter()
+}
+if ($RestartInstance) {
+    Restart-Service -Name $INSTANCENAME -Force    
+}
+}
+
 
 #Install-SQLDBIngine -Accept -EnableSQLAuthentication -Futures "SQLEngine" -INSTANCENAME "MSSQLSERVER12" -SAPassword "PASsW!23$"
 
