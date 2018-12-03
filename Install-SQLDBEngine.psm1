@@ -94,7 +94,12 @@ if ($RestartInstance) {
 }
 }
 
-
+function Enable-SQLBrowser
+{
+$bro = Get-Service -Name *sql*browser*
+$bro | Set-Service -StartupType Automatic
+$bro | Start-Service 
+}
 
 #Example
 #Install-SQLDBIngine -Accept -EnableSQLAuthentication -Futures "SQLEngine" -INSTANCENAME "MSSQLSERVER12" -SAPassword "PASsW!23$"
