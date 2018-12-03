@@ -71,7 +71,7 @@ function Enable-SQLTCPIP
 {
     param(
         [parameter(Mandatory=$true)]
-        [ValidateSet("MSSQLSERVER")]
+        #[ValidateSet("MSSQLSERVER")]
         [string]$INSTANCENAME,
         [switch]$ChangePort = $false,
         [string]$Port = "1433",
@@ -90,11 +90,13 @@ if ($ChangePort) {
     $TCP.Alter()
 }
 if ($RestartInstance) {
-    Restart-Service -Name $INSTANCENAME -Force    
+    Get-Service -Name *$INSTANCENAME* | Restart-Service -Force  
 }
 }
 
 
+
+#Example
 #Install-SQLDBIngine -Accept -EnableSQLAuthentication -Futures "SQLEngine" -INSTANCENAME "MSSQLSERVER12" -SAPassword "PASsW!23$"
 
 
