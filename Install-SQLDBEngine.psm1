@@ -79,26 +79,26 @@ function Enable-SQLTCPIP
 
     )
     Import-Module SQLPS
-$smo = ‘Microsoft.SqlServer.Management.Smo.’
-$wmi = new-object ($smo + ‘Wmi.ManagedComputer’)
-$uri = "ManagedComputer[@Name=" + "'" + $env:COMPUTERNAME + "'" + "]/ ServerInstance[@Name=" + "'" + $INSTANCENAME + "'" + "]/ServerProtocol[@Name='Tcp']"
-$Tcp = $wmi.GetSmoObject($uri)
-$Tcp.IsEnabled = $true
-$TCP.Alter()
-if ($ChangePort) {
-    $wmi.GetSmoObject($uri + "/IPAddress[@Name='IPAll']").IPAddressProperties[1].Value="$Port"
-    $TCP.Alter()
-}
-if ($RestartInstance) {
-    Get-Service -Name *$INSTANCENAME* | Restart-Service -Force  
-}
-}
+        $smo = ‘Microsoft.SqlServer.Management.Smo.’
+        $wmi = new-object ($smo + ‘Wmi.ManagedComputer’)
+        $uri = "ManagedComputer[@Name=" + "'" + $env:COMPUTERNAME + "'" + "]/ ServerInstance[@Name=" + "'" + $INSTANCENAME + "'" + "]/ServerProtocol[@Name='Tcp']"
+        $Tcp = $wmi.GetSmoObject($uri)
+        $Tcp.IsEnabled = $true
+        $TCP.Alter()
+        if ($ChangePort) {
+            $wmi.GetSmoObject($uri + "/IPAddress[@Name='IPAll']").IPAddressProperties[1].Value="$Port"
+            $TCP.Alter()
+        }
+        if ($RestartInstance) {
+            Get-Service -Name *$INSTANCENAME* | Restart-Service -Force  
+        }
+        }
 
 function Enable-SQLBrowser
 {
-$bro = Get-Service -Name *sql*browser*
-$bro | Set-Service -StartupType Automatic
-$bro | Start-Service 
+    $bro = Get-Service -Name *sql*browser*
+    $bro | Set-Service -StartupType Automatic
+    $bro | Start-Service 
 }
 
 #Example
